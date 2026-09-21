@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charSet="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+    <title>Happy Birthday, 梁研</title>
+    <link rel="stylesheet" href="index.css"/>
+    
+    <style>
+        /* 礼物区卡片图片 */
+        .gift-media img {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 12px; transition: transform 0.6s ease;
+        }
+        .gift-card:hover .gift-media img { transform: scale(1.08); }
+        .gift-media {
+            display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); border-radius: 12px; position: relative; overflow: hidden;
+        }
+        .placeholder-text {
+            position: absolute; color: rgba(255,255,255,0.5); font-size: 0.9rem; text-align: center; padding: 20px; z-index: 0;
+        }
+
+        .script-accent, h1#hero-title span { color: #00e5ff !important; text-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .reveal.revealed { opacity: 1; transform: translateY(0); }
+        .constellation { display: none; }
+        
+        .finale-section {
+            position: relative; min-height: 120vh !important; overflow: hidden; display: flex; flex-direction: column; justify-content: center;
+        }
+        .finale-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: hue-rotate(20deg); }
+        
+        #cake-canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; opacity: 0; transition: opacity 2s ease; display: flex; justify-content: center; align-items: center; }
+        #cake-canvas-container.active { opacity: 1; pointer-events: auto; }
+        .wish-button { cursor: pointer; z-index: 20; position: relative; background: rgba(0, 229, 255, 0.2) !important; border: 1px solid #00e5ff !important; color: #fff !important; }
+        .wish-button:hover { background: rgba(0, 229, 255, 0.4) !important; box-shadow: 0 0 20px rgba(0, 229, 255, 0.5); }
+
+        /* ====== 气球 CSS 动效 ====== */
+        .balloon-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15; overflow: hidden; }
+        .balloon {
+            position: absolute; bottom: -150px; width: 60px; height: 80px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            opacity: 0.9; box-shadow: inset -10px -10px 20px rgba(0,0,0,0.2);
+        }
+        .balloon::before {
+            content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+            width: 10px; height: 10px; clip-path: polygon(50% 0, 100% 100%, 0 100%);
+        }
+        .balloon::after {
+            content: ''; position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
+            width: 1px; height: 50px; background: rgba(255,255,255,0.4);
+        }
+
+        /* 抖音风格绘制发光字 */
+        .draw-text-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center; z-index: 25;
+            pointer-events: none;
+        }
+        .draw-text {
+            font-size: 8rem; font-weight: bold; color: transparent;
+            -webkit-text-stroke: 4px #00e5ff;
+            text-shadow: 0 0 30px #00e5ff, 0 0 60px #f7d070;
+            opacity: 0; transform: scale(0.5);
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+<main>
+    <div class="texture-overlay" aria-hidden="true"></div>
+
+    <section class="hero-section" id="home">
+        <video id="hero-video" class="section-video" preload="auto" autoplay loop muted playsInline style="filter: hue-rotate(120deg) saturate(1.5) brightness(0.8); transform: scale(1.1);">
+            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4" type="video/mp4"/>
+        </video>
+        <div class="video-shade" aria-hidden="true" style="background: linear-gradient(to bottom, rgba(5, 10, 20, 0.7), rgba(5, 10, 20, 0.3));"></div>
+
+        <header class="site-header">
+            <a class="wordmark" href="#home">LY.DAY</a>
+            <nav class="liquid-glass main-nav">
+                <a href="#home">首页</a><a href="#story">序章</a><a href="#gifts">奇遇</a><a href="#finale">许愿</a>
+            </nav>
+            <button class="header-note" type="button">送上祝福</button>
+        </header>
+
+        <div class="hero-content reveal">
+            <p class="eyebrow">A MAGICAL WORLD, JUST FOR YOU</p>
+            <h1 id="hero-title">HAPPY BIRTHDAY<br/><span>梁研</span></h1>
+            <p class="script-accent hero-script" style="margin-top: -20px; font-size: 3.5rem;">make a wish</p>
+            <p class="hero-copy">宇宙里所有的温柔与浪漫<br/>都在今天向你奔涌而来。</p>
+            <a href="#story" class="primary-cta liquid-glass" style="text-decoration:none; display:inline-flex; align-items:center;">
+                <span>开启生日旅程</span><span aria-hidden="true">↘</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="story-section" id="story">
+        <video class="section-video story-video" preload="auto" autoplay loop muted playsInline>
+            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_151551_992053d1-3d3e-4b8c-abac-45f22158f411.mp4" type="video/mp4"/>
+        </video>
+        <div class="video-shade story-shade" aria-hidden="true"></div>
+        
+        <div class="story-layout reveal">
+            <div class="story-heading">
+                <p class="section-number">02 — A NOTE FOR YOU</p>
+                <h2 id="story-title">DEAR<br/>LIANG YAN</h2>
+                <p class="script-accent" style="font-size: 2.5rem; margin-top: -20px;">hello, birthday star</p>
+            </div>
+            <div class="story-letter liquid-glass">
+                <span>TO / 梁研</span>
+                <p>生日快乐！在这个特别的日子里，希望你能暂时放下烦恼，做回无忧无虑的小孩。</p>
+                <p>愿新的一岁，身边都是可爱的人，做的都是喜欢的事。哪怕偶尔迷路，也会是一场有趣的冒险。</p>
+                <small>WITH ALL THE WARMEST WISHES</small>
+            </div>
+        </div>
+    </section>
+
+    <section class="gifts-section" id="gifts">
+        <div class="section-heading reveal">
+            <div>
+                <p class="section-number">03 — YOUR CUTE CREW</p>
+                <h2 id="gifts-title">萌物送福<br/><span class="script-accent">for you</span></h2>
+            </div>
+            <p class="heading-note">为你精选的<br/>可爱陪伴 ✨</p>
+        </div>
+        
+        <div class="gift-grid">
+            <article class="gift-card liquid-glass reveal">
+                <div class="gift-media">
+                    
+                    <img src="assets/minion.gif" alt="Minion" onerror="this.style.display='none'" style="z-index: 1;"/>
+                    <span class="gift-number">01</span>
+                </div>
+                <div class="gift-meta">
+                    <div><span>FOR YOUR JOY</span><h3>愿你像小黄人般开心</h3><p style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin-top:5px;">保持童心，笑口常开，每一天都充满简单的快乐。</p></div>
+                </div>
+            </article>
+
+            <article class="gift-card liquid-glass reveal">
+                <div class="gift-media">
+                    
+                    <img src="assets/spongebob.jpg" alt="Spongebob" onerror="this.style.display='none'" style="z-index: 1;"/>
+                    <span class="gift-number">02</span>
+                </div>
+                <div class="gift-meta">
+                    <div><span>FOR YOUR DAYS</span><h3>愿你活力满满</h3><p style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin-top:5px;">生活就是一场派对，尽情去享受属于你的时刻吧！</p></div>
+                </div>
+            </article>
+
+            <article class="gift-card liquid-glass reveal">
+                <div class="gift-media">
+                    
+                    <img src="assets/bear.jpg" alt="Bear" onerror="this.style.display='none'" style="z-index: 1;"/>
+                    <span class="gift-number">03</span>
+                </div>
+                <div class="gift-meta">
+                    <div><span>FOR YOUR WARMTH</span><h3>愿你被温柔相待</h3><p style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin-top:5px;">累了就安心躺下，总有温暖的治愈陪着你。</p></div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- 终章：炫酷 3D 粒子蛋糕 + 气球动画 -->
+    <section class="finale-section" id="finale">
+        <video class="finale-video" preload="auto" autoplay loop muted playsInline>
+            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_055729_72d66327-b59e-4ae9-bb70-de6ccb5ecdb0.mp4" type="video/mp4"/>
+        </video>
+        <div class="video-shade finale-shade" aria-hidden="true" style="z-index: 1; background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4));"></div>
+        
+        <div class="finale-copy reveal" id="finale-text" style="z-index: 2; position: relative;">
+            <p class="script-accent" style="font-size: 2.5rem; margin-bottom: 20px;">one more thing</p>
+            <h2 id="finale-title">愿你所行皆坦途<br/>所遇皆温柔<br/>所念皆如愿</h2>
+            <button class="wish-button liquid-glass" id="summon-cake-btn" style="margin-top: 40px;">点亮 3D 粒子蛋糕 🎂</button>
+        </div>
+
+        
+        <div class="balloon-container" id="balloon-container"></div>
+                <div id="cake-blessing" style="position: absolute; top: 20%; left: 0; width: 100%; text-align: center; z-index: 30; pointer-events: none;">
+            <div class="pop-word" style="font-size: clamp(3rem, 8vw, 5rem); font-weight: bold; color: #f7d070; text-shadow: 0 4px 20px rgba(247, 208, 112, 0.6), 0 0 40px rgba(255,159,67, 0.8);">岁岁常欢愉</div>
+            <div class="pop-word-author" style="font-size: 1.2rem; color: rgba(255,255,255,0.8); margin-top: 15px; opacity: 0; transform: translateY(20px);">—— 你的好友</div>
+        </div>
+        <div id="cake-canvas-container"></div>
+        
+        <footer style="z-index: 2; position: relative;"><span>MADE WITH WARM WISHES</span><span>FOR 梁研 · 2026</span></footer>
+    </section>
+</main>
+
+<script>
+    const observer = new IntersectionObserver((e) => { e.forEach(en => { if(en.isIntersecting) en.target.classList.add('revealed'); }); }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    document.querySelectorAll('video').forEach(vid => vid.play().catch(e => {}));
+
+    const summonBtn = document.getElementById('summon-cake-btn');
+    const cakeContainer = document.getElementById('cake-canvas-container');
+    const balloonContainer = document.getElementById('balloon-container');
+    let cakeInitialized = false;
+
+    summonBtn.addEventListener('click', () => {
+        gsap.to(document.getElementById('finale-text'), { opacity: 0, duration: 1, onComplete: () => document.getElementById('finale-text').style.display = 'none' });
+        
+        
+
+        // 2. 升起满屏气球
+        createBalloons();
+
+        // 3. 延迟加载粒子蛋糕，配合气球升空的节奏
+        setTimeout(() => {
+            cakeContainer.classList.add('active');
+            if(!cakeInitialized) { initParticleCake(); cakeInitialized = true; }
+        }, 1500);
+    });
+
+    function createBalloons() {
+        const colors = [
+            { bg: 'radial-gradient(circle at 30% 30%, #fff, #ff6b81)', tip: '#ff6b81' }, // Pink
+            { bg: 'radial-gradient(circle at 30% 30%, #fff, #00e5ff)', tip: '#00e5ff' }, // Cyan
+            { bg: 'radial-gradient(circle at 30% 30%, #fff, #f7d070)', tip: '#f7d070' }, // Gold
+            { bg: 'radial-gradient(circle at 30% 30%, #fff, #a29bfe)', tip: '#a29bfe' }  // Purple
+        ];
+        
+        for(let i=0; i<25; i++) {
+            const b = document.createElement('div');
+            b.className = 'balloon';
+            const c = colors[Math.floor(Math.random() * colors.length)];
+            b.style.background = c.bg;
+            
+            // 动态添加伪元素颜色（由于是伪元素，我们用一点 hack 或不处理也行，这里用统一透明处理）
+            b.style.left = Math.random() * 90 + 5 + '%';
+            
+            const startY = window.innerHeight + 100 + Math.random() * 200;
+            const endY = -300 - Math.random() * 200;
+            const duration = 5 + Math.random() * 4;
+            
+            balloonContainer.appendChild(b);
+            
+            gsap.fromTo(b, 
+                { y: startY, x: 0 }, 
+                { y: endY, x: (Math.random()-0.5)*200, duration: duration, ease: "power1.inOut", 
+                  onComplete: () => b.remove() }
+            );
+        }
+    }
+
+    function initParticleCake() {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / 500, 0.1, 100);
+        camera.position.set(0, 10, 25);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0); 
+        cakeContainer.appendChild(renderer.domElement);
+
+        const cakeGroup = new THREE.Group();
+        scene.add(cakeGroup);
+        cakeGroup.position.y = -6;
+
+        // 抖音同款 3D 粒子蛋糕生成器
+        const particleCount = 15000;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        
+        const colorCyan = new THREE.Color(0x00e5ff);
+        const colorGold = new THREE.Color(0xf7d070);
+        const colorPink = new THREE.Color(0xff6b81);
+
+        for (let i = 0; i < particleCount; i++) {
+            const tier = Math.random();
+            let r, y, h;
+            if (tier < 0.5) { 
+                h = 2.5; r = 5; y = Math.random() * h;
+            } else if (tier < 0.8) { 
+                h = 2; r = 3.5; y = 2.5 + Math.random() * h;
+            } else { 
+                h = 1.5; r = 2.2; y = 4.5 + Math.random() * h;
+            }
+            
+            const theta = Math.random() * Math.PI * 2;
+            // 粒子主要分布在蛋糕外层表面，形成全息投影感
+            const radius = Math.random() > 0.15 ? r : r * Math.sqrt(Math.random());
+            
+            positions[i * 3] = Math.cos(theta) * radius;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = Math.sin(theta) * radius;
+            
+            const mixColor = [colorCyan, colorGold, colorPink][Math.floor(Math.random() * 3)];
+            colors[i * 3] = mixColor.r;
+            colors[i * 3 + 1] = mixColor.g;
+            colors[i * 3 + 2] = mixColor.b;
+        }
+        
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        // 粒子发光材质
+        const pCanvas = document.createElement('canvas');
+        pCanvas.width = 32; pCanvas.height = 32;
+        const ctx = pCanvas.getContext('2d');
+        const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+        grad.addColorStop(0, 'rgba(255,255,255,1)');
+        grad.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = grad; ctx.fillRect(0,0,32,32);
+        const particleTexture = new THREE.CanvasTexture(pCanvas);
+
+        const material = new THREE.PointsMaterial({
+            size: 0.2,
+            map: particleTexture,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const particles = new THREE.Points(geometry, material);
+        cakeGroup.add(particles);
+
+        // 蜡烛与火焰 (也是发光的精灵图)
+        const flames = [], flameLights = [];
+        for(let i=0; i<5; i++) {
+            const angle = (i / 5) * Math.PI * 2;
+            const cx = Math.cos(angle) * 1.5;
+            const cz = Math.sin(angle) * 1.5;
+            
+            const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: particleTexture, color: 0xffaa00, transparent: true, blending: THREE.AdditiveBlending }));
+            glow.position.set(cx, 6.5, cz);
+            glow.scale.set(2, 2, 2);
+            cakeGroup.add(glow); flames.push(glow);
+
+            const light = new THREE.PointLight(0xffaa00, 2, 10);
+            light.position.set(cx, 6.5, cz);
+            cakeGroup.add(light); flameLights.push(light);
+        }
+
+        // 蛋糕入场动效：从散落的粒子聚合成蛋糕
+        const positionsAttr = geometry.attributes.position;
+        const targetPositions = new Float32Array(positionsAttr.array);
+        
+        // 初始时粒子散开
+        for(let i=0; i<particleCount*3; i++) {
+            positionsAttr.array[i] += (Math.random() - 0.5) * 20;
+        }
+        
+        gsap.to(positionsAttr.array, {
+            endArray: targetPositions,
+            duration: 3,
+            ease: "power2.out",
+            onUpdate: () => positionsAttr.needsUpdate = true,
+            onComplete: () => {
+                cakeContainer.addEventListener('click', blowCandles);
+            }
+        });
+
+        let isBlown = false;
+        function blowCandles() {
+            if(isBlown) return;
+            isBlown = true;
+            
+            gsap.to(camera.position, { z: 15, y: 5, duration: 1.5, ease: "power2.inOut" });
+
+            flames.forEach((f, i) => {
+                setTimeout(() => {
+                    gsap.to(f.scale, { x: 0, y: 0, z: 0, duration: 0.3 });
+                    gsap.to(flameLights[i], { intensity: 0, duration: 0.3 });
+                    if(i === flames.length - 1) setTimeout(celebrate, 600);
+                }, i * 150);
+            });
+        }
+
+                function celebrate() {
+            const wordDiv = document.querySelector('.pop-word');
+            const text = wordDiv.innerText;
+            wordDiv.innerHTML = '';
+            [...text].forEach(char => {
+                const span = document.createElement('span');
+                span.innerText = char;
+                span.style.display = 'inline-block';
+                span.style.transform = 'scale(0)';
+                span.style.opacity = '0';
+                wordDiv.appendChild(span);
+            });
+            
+            gsap.to(wordDiv.children, {
+                scale: 1, opacity: 1,
+                duration: 0.8, stagger: 0.2, ease: "back.out(2)"
+            });
+            gsap.to('.pop-word-author', {
+                y: 0, opacity: 1,
+                duration: 1, delay: text.length * 0.2 + 0.5, ease: "power2.out"
+            });
+            
+            const end = Date.now() + 5000;
+            (function frame() {
+                confetti({ particleCount: 7, angle: 60, spread: 80, origin: { x: 0, y: 0.7 }, colors: ['#00e5ff', '#f7d070', '#ffffff'] });
+                confetti({ particleCount: 7, angle: 120, spread: 80, origin: { x: 1, y: 0.7 }, colors: ['#00e5ff', '#f7d070', '#ffffff'] });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+            cakeGroup.rotation.y = time * 0.1;
+            
+            // 粒子呼吸动效
+            material.size = 0.2 + Math.sin(time * 2) * 0.05;
+
+            if(!isBlown) {
+                flames.forEach((f, i) => {
+                    const flicker = Math.sin(time * 15 + i) * 0.1;
+                    f.scale.set(2 + flicker, 2.5 + flicker*2, 2 + flicker);
+                });
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    }
+</script>
+</body>
+</html>
+
+
