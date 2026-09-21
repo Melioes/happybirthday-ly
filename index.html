@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <meta charSet="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
     <title>Happy Birthday, 梁研</title>
@@ -26,8 +27,8 @@
         .constellation { display: none; }
         
         .finale-section {
-            position: relative; min-height: 120vh !important; overflow: hidden; display: flex; flex-direction: column; justify-content: center;
-        }
+    position: relative; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center;
+}
         .finale-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: hue-rotate(20deg); }
         
         #cake-canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; opacity: 0; transition: opacity 2s ease; display: flex; justify-content: center; align-items: center; }
@@ -174,15 +175,17 @@
         <div class="finale-copy reveal" id="finale-text" style="z-index: 2; position: relative;">
             <p class="script-accent" style="font-size: 2.5rem; margin-bottom: 20px;">one more thing</p>
             <h2 id="finale-title">愿你所行皆坦途<br/>所遇皆温柔<br/>所念皆如愿</h2>
-            <button class="wish-button liquid-glass" id="summon-cake-btn" style="margin-top: 40px;">点亮 3D 粒子蛋糕 🎂</button>
+            <button class="wish-button liquid-glass" id="summon-cake-btn" style="margin-top: 40px;">🪄 变个魔法蛋糕看看</button>
         </div>
 
         
         <div class="balloon-container" id="balloon-container"></div>
-                <div id="cake-blessing" style="position: absolute; top: 20%; left: 0; width: 100%; text-align: center; z-index: 30; pointer-events: none;">
-            <div class="pop-word" style="font-size: clamp(3rem, 8vw, 5rem); font-weight: bold; color: #f7d070; text-shadow: 0 4px 20px rgba(247, 208, 112, 0.6), 0 0 40px rgba(255,159,67, 0.8);">岁岁常欢愉</div>
-            <div class="pop-word-author" style="font-size: 1.2rem; color: rgba(255,255,255,0.8); margin-top: 15px; opacity: 0; transform: translateY(20px);">—— 你的好友</div>
-        </div>
+                <div id="cake-blessing" style="position: absolute; top: 15%; left: 0; width: 100%; text-align: center; z-index: 30; pointer-events: none;">
+    <div class="pop-word" style="font-family: 'Fredoka One', cursive; font-size: clamp(3rem, 10vw, 6rem); color: #0a5c36; text-shadow: 0 4px 15px rgba(10, 92, 54, 0.4), 0 0 30px rgba(247, 208, 112, 0.8);">HAPPY BIRTHDAY</div>
+    <div class="pop-word-author" style="font-size: 1.2rem; color: rgba(255,255,255,0.9); margin-top: 15px; opacity: 0; transform: translateY(20px);">
+        愿你每天都能像今天一样开心自在！<br/><br/>—— 梁研
+    </div>
+</div>
         <div id="cake-canvas-container"></div>
         
         <footer style="z-index: 2; position: relative;"><span>MADE WITH WARM WISHES</span><span>FOR 梁研 · 2026</span></footer>
@@ -258,7 +261,8 @@
 
         const cakeGroup = new THREE.Group();
         scene.add(cakeGroup);
-        cakeGroup.position.y = -6;
+        cakeGroup.position.set(0, -15, 0);
+        gsap.to(cakeGroup.position, { y: -2, duration: 3.5, ease: "back.out(1.2)" });
 
         // 抖音同款 3D 粒子蛋糕生成器
         const particleCount = 15000;
