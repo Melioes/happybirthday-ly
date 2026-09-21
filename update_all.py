@@ -1,70 +1,27 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
-    <meta charSet="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
-    <title>Happy Birthday, 梁研</title>
-    <link rel="stylesheet" href="index.css"/>
-    
-    <style>
-        /* 礼物区卡片图片 */
-        .gift-media img {
-            width: 100%; height: 100%; object-fit: cover; border-radius: 12px; transition: transform 0.6s ease;
-        }
-        .gift-card:hover .gift-media img { transform: scale(1.08); }
-        .gift-media {
-            display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); border-radius: 12px; position: relative; overflow: hidden;
-        }
-        .placeholder-text {
-            position: absolute; color: rgba(255,255,255,0.5); font-size: 0.9rem; text-align: center; padding: 20px; z-index: 0;
-        }
+import re
 
-        .script-accent, h1#hero-title span { color: #00e5ff !important; text-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+with open('D:/happybirthday/index.html', 'r', encoding='utf-8') as f:
+    html = f.read()
 
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .reveal.revealed { opacity: 1; transform: translateY(0); }
-        .constellation { display: none; }
-        
-        .finale-section {
-    position: relative; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center;
-}
-        .finale-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: hue-rotate(20deg); }
-        
-        #cake-canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; opacity: 0; transition: opacity 2s ease; display: flex; justify-content: center; align-items: center; }
-        #cake-canvas-container.active { opacity: 1; pointer-events: auto; }
-        .wish-button { cursor: pointer; z-index: 20; position: relative; background: rgba(0, 229, 255, 0.2) !important; border: 1px solid #00e5ff !important; color: #fff !important; }
-        .wish-button:hover { background: rgba(0, 229, 255, 0.4) !important; box-shadow: 0 0 20px rgba(0, 229, 255, 0.5); }
+# 1. Update Video Tags for 100% mobile compatibility
+html = re.sub(
+    r'<video id=\"hero-video\"[^>]*>',
+    '<video id=\"hero-video\" class=\"section-video\" preload=\"auto\" autoplay loop muted playsinline=\"true\" webkit-playsinline=\"true\" x5-playsinline=\"true\" x5-video-player-type=\"h5-page\" x5-video-player-fullscreen=\"true\">',
+    html
+)
+html = re.sub(
+    r'<video class=\"section-video story-video\"[^>]*>',
+    '<video class=\"section-video story-video\" preload=\"auto\" autoplay loop muted playsinline=\"true\" webkit-playsinline=\"true\" x5-playsinline=\"true\" x5-video-player-type=\"h5-page\" x5-video-player-fullscreen=\"true\">',
+    html
+)
+html = re.sub(
+    r'<video class=\"finale-video\"[^>]*>',
+    '<video class=\"finale-video\" preload=\"auto\" autoplay loop muted playsinline=\"true\" webkit-playsinline=\"true\" x5-playsinline=\"true\" x5-video-player-type=\"h5-page\" x5-video-player-fullscreen=\"true\">',
+    html
+)
 
-        /* ====== 气球 CSS 动效 ====== */
-        .balloon-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15; overflow: hidden; }
-        .balloon {
-            position: absolute; bottom: -150px; width: 60px; height: 80px;
-            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
-            opacity: 0.9; box-shadow: inset -10px -10px 20px rgba(0,0,0,0.2);
-        }
-        .balloon::before {
-            content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
-            width: 10px; height: 10px; clip-path: polygon(50% 0, 100% 100%, 0 100%);
-        }
-        .balloon::after {
-            content: ''; position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
-            width: 1px; height: 50px; background: rgba(255,255,255,0.4);
-        }
-
-        /* 抖音风格绘制发光字 */
-        .draw-text-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; justify-content: center; align-items: center; z-index: 25;
-            pointer-events: none;
-        }
-        .draw-text {
-            font-size: 8rem; font-weight: bold; color: transparent;
-            -webkit-text-stroke: 4px #00e5ff;
-            text-shadow: 0 0 30px #00e5ff, 0 0 60px #f7d070;
-            opacity: 0; transform: scale(0.5);
-        }
-    
+# 2. Update style block: add pop-char 3D styling and mobile-friendly hero tint
+new_styles = '''
         /* 3D 梦幻高质感文字特效 */
         .pop-char {
             display: inline-block;
@@ -86,124 +43,12 @@
         .hero-section .video-shade {
             background: radial-gradient(circle at 50% 50%, rgba(0, 220, 130, 0.22) 0%, rgba(2, 6, 23, 0.75) 100%) !important;
         }
+'''
+if '.pop-char {' not in html:
+    html = html.replace('</style>', new_styles + '\n    </style>')
 
-    </style>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-</head>
-<body>
-<main>
-    <div class="texture-overlay" aria-hidden="true"></div>
-
-    <section class="hero-section" id="home">
-        <video id="hero-video" class="section-video" preload="auto" autoplay loop muted playsinline="true" webkit-playsinline="true" x5-playsinline="true" x5-video-player-type="h5-page" x5-video-player-fullscreen="true">
-            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4" type="video/mp4"/>
-        </video>
-        <div class="video-shade" aria-hidden="true" style="background: linear-gradient(to bottom, rgba(5, 10, 20, 0.7), rgba(5, 10, 20, 0.3));"></div>
-
-        <header class="site-header">
-            <a class="wordmark" href="#home">LY.DAY</a>
-            <nav class="liquid-glass main-nav">
-                <a href="#home">首页</a><a href="#story">序章</a><a href="#gifts">奇遇</a><a href="#finale">许愿</a>
-            </nav>
-            <button class="header-note" type="button">送上祝福</button>
-        </header>
-
-        <div class="hero-content reveal">
-            <p class="eyebrow">A MAGICAL WORLD, JUST FOR YOU</p>
-            <h1 id="hero-title">HAPPY BIRTHDAY<br/><span>梁研</span></h1>
-            <p class="script-accent hero-script" style="margin-top: -20px; font-size: 3.5rem;">make a wish</p>
-            <p class="hero-copy">宇宙里所有的温柔与浪漫<br/>都在今天向你奔涌而来。</p>
-            <a href="#story" class="primary-cta liquid-glass" style="text-decoration:none; display:inline-flex; align-items:center;">
-                <span>开启生日旅程</span><span aria-hidden="true">↘</span>
-            </a>
-        </div>
-    </section>
-
-    <section class="story-section" id="story">
-        <video class="section-video story-video" preload="auto" autoplay loop muted playsinline="true" webkit-playsinline="true" x5-playsinline="true" x5-video-player-type="h5-page" x5-video-player-fullscreen="true">
-            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_151551_992053d1-3d3e-4b8c-abac-45f22158f411.mp4" type="video/mp4"/>
-        </video>
-        <div class="video-shade story-shade" aria-hidden="true"></div>
-        
-        <div class="story-layout reveal">
-            <div class="story-heading">
-                <p class="section-number">02 — A NOTE FOR YOU</p>
-                <h2 id="story-title">DEAR<br/>LIANG YAN</h2>
-                <p class="script-accent" style="font-size: 2.5rem; margin-top: -20px;">hello, birthday star</p>
-            </div>
-            <div class="story-letter liquid-glass">
-                <span>TO / 梁研</span>
-                <p>生日快乐！在这个特别的日子里，希望你能暂时放下烦恼，做回无忧无虑的小孩。</p>
-                <p>愿新的一岁，身边都是可爱的人，做的都是喜欢的事。哪怕偶尔迷路，也会是一场有趣的冒险。</p>
-                <small>WITH ALL THE WARMEST WISHES</small>
-            </div>
-        </div>
-    </section>
-
-    <section class="gifts-section" id="gifts">
-        <div class="section-heading reveal">
-            <div>
-                <p class="section-number">03 — YOUR CUTE CREW</p>
-                <h2 id="gifts-title">萌物送福<br/><span class="script-accent">for you</span></h2>
-            </div>
-            <p class="heading-note">为你精选的<br/>可爱陪伴 ✨</p>
-        </div>
-        
-        <div class="gift-grid">
-            <article class="gift-card liquid-glass reveal">
-                <div class="gift-media">
-                    
-                    <img src="assets/minion.gif" alt="Minion" onerror="this.style.display='none'" style="z-index: 1;"/>
-                    <span class="gift-number">01</span>
-                </div>
-                <div class="gift-meta">
-                    <div><span>FOR YOUR JOY</span><h3>愿你像小黄人般开心</h3><p style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin-top:5px;">保持童心，笑口常开，每一天都充满简单的快乐。</p></div>
-                </div>
-            </article>
-
-            <article class="gift-card liquid-glass reveal">
-                <div class="gift-media">
-                    
-                    <img src="assets/spongebob.jpg" alt="Spongebob" onerror="this.style.display='none'" style="z-index: 1;"/>
-                    <span class="gift-number">02</span>
-                </div>
-                <div class="gift-meta">
-                    <div><span>FOR YOUR DAYS</span><h3>愿你活力满满</h3><p style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin-top:5px;">生活就是一场派对，尽情去享受属于你的时刻吧！</p></div>
-                </div>
-            </article>
-
-            <article class="gift-card liquid-glass reveal">
-                <div class="gift-media">
-                    
-                    <img src="assets/bear.jpg" alt="Bear" onerror="this.style.display='none'" style="z-index: 1;"/>
-                    <span class="gift-number">03</span>
-                </div>
-                <div class="gift-meta">
-                    <div><span>FOR YOUR WARMTH</span><h3>愿你被温柔相待</h3><p style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin-top:5px;">累了就安心躺下，总有温暖的治愈陪着你。</p></div>
-                </div>
-            </article>
-        </div>
-    </section>
-
-    <!-- 终章：炫酷 3D 粒子蛋糕 + 气球动画 -->
-    <section class="finale-section" id="finale">
-        <video class="finale-video" preload="auto" autoplay loop muted playsinline="true" webkit-playsinline="true" x5-playsinline="true" x5-video-player-type="h5-page" x5-video-player-fullscreen="true">
-            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_055729_72d66327-b59e-4ae9-bb70-de6ccb5ecdb0.mp4" type="video/mp4"/>
-        </video>
-        <div class="video-shade finale-shade" aria-hidden="true" style="z-index: 1; background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4));"></div>
-        
-        <div class="finale-copy reveal" id="finale-text" style="z-index: 2; position: relative;">
-            <p class="script-accent" style="font-size: 2.5rem; margin-bottom: 20px;">one more thing</p>
-            <h2 id="finale-title">愿你所行皆坦途<br/>所遇皆温柔<br/>所念皆如愿</h2>
-            <button class="wish-button liquid-glass" id="summon-cake-btn" style="margin-top: 40px;">🪄 变个魔法蛋糕看看</button>
-        </div>
-
-        
-        <div class="balloon-container" id="balloon-container"></div>
-                        <div id="cake-blessing" style="position: absolute; top: 8%; left: 0; width: 100%; text-align: center; z-index: 30; pointer-events: none; padding: 0 10px; opacity: 0; transition: opacity 0.5s ease;">
+# 3. Replace #cake-blessing block with new structure
+new_blessing = '''        <div id="cake-blessing" style="position: absolute; top: 8%; left: 0; width: 100%; text-align: center; z-index: 30; pointer-events: none; padding: 0 10px; opacity: 0; transition: opacity 0.5s ease;">
             <div class="pop-title" style="font-family: 'Fredoka One', 'Arial Black', sans-serif; font-size: clamp(2.4rem, 8vw, 4.5rem); font-weight: 900; line-height: 1.15;">
                 <div class="pop-word" style="display: inline-block; margin-right: 12px;">HAPPY</div>
                 <div class="pop-word" style="display: inline-block;">BIRTHDAY</div>
@@ -214,14 +59,13 @@
             <div class="pop-recipient" style="font-size: clamp(1.1rem, 3.2vw, 1.5rem); color: #00f5d4; font-weight: 700; letter-spacing: 2px; margin-top: 10px; text-shadow: 0 0 15px rgba(0, 245, 212, 0.8);">
                 To: 梁研 🎂
             </div>
-        </div>
-        <div id="cake-canvas-container"></div>
-        
-        <footer style="z-index: 2; position: relative;"><span>MADE WITH WARM WISHES</span><span>FOR 梁研 · 2026</span></footer>
-    </section>
-</main>
+        </div>'''
 
-<script>
+html = re.sub(r'<div id=\"cake-blessing\".*?</div>\s*</div>', new_blessing, html, flags=re.DOTALL)
+
+# 4. Update the entire script block with proper mobile video handling, centered cake coordinates, and 3D popping text
+script_pattern = r'<script>.*?</script>'
+new_script = '''<script>
     // 1. 全局移动端视频强制播放保障
     function playAllVideos() {
         document.querySelectorAll('video').forEach(v => {
@@ -534,8 +378,10 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
     }
-</script>
-</body>
-</html>
+</script>'''
 
+html = re.sub(script_pattern, new_script, html, flags=re.DOTALL)
 
+with open('D:/happybirthday/index.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+print('Successfully rewritten index.html')
